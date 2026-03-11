@@ -316,27 +316,42 @@
             color: white;
             font-size: 1.125rem;
             outline: none;
+            autocomplete: off;
+            autocorrect: off;
+            autocapitalize: off;
+            spellcheck: false;
         }
 
         .search-input::placeholder {
             color: rgba(255, 255, 255, 0.3);
         }
 
-        /* ========== 右側面板 ========== */
+        .search-input:-webkit-autofill,
+        .search-input:-webkit-autofill:hover,
+        .search-input:-webkit-autofill:focus,
+        .search-input:-webkit-autofill:active {
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: white;
+            transition: background-color 5000s ease-in-out 0s;
+            box-shadow: inset 0 0 20px 20px rgba(255, 255, 255, 0.1);
+        }
+
+        /* ========== 右側面板 (時間 + 書籤) - 縮小10% ========== */
         .right-panel {
             position: fixed;
             right: 1rem;
             top: 50%;
-            transform: translateY(-50%);
+            transform: translateY(-50%) scale(0.9);
+            transform-origin: right center;
             display: flex;
             flex-direction: column;
-            gap: 1rem;
+            gap: 0.9rem;
             z-index: 20;
         }
 
         @media (min-width: 640px) {
             .right-panel {
-                right: 2rem;
+                right: 1.8rem;
             }
         }
 
@@ -350,10 +365,6 @@
             animation-delay: 0.9s;
         }
 
-        .weather-panel {
-            animation-delay: 1.2s;
-        }
-
         .bookmark-panel {
             animation-delay: 1.0s;
         }
@@ -365,7 +376,7 @@
             }
         }
 
-        /* 毛玻璃卡片 */
+        /* 毛玻璃卡片 - 共用 */
         .glass-card {
             backdrop-filter: blur(20px) saturate(150%);
             background: rgba(10, 10, 11, 0.65);
@@ -375,6 +386,7 @@
             transition: opacity 0.7s;
         }
 
+        /* 時間卡片 - 內部尺寸維持不變，由 scale 控制 */
         .time-card {
             padding: 28px 24px;
             min-width: 140px;
@@ -463,116 +475,7 @@
             width: 0%;
         }
 
-        /* ========== 天氣卡片 ========== */
-        .weather-card {
-            padding: 24px;
-            min-width: 160px;
-        }
-
-        .weather-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .weather-icon-container {
-            width: 64px;
-            height: 64px;
-            margin-bottom: 8px;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
-        }
-
-        .weather-icon {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .weather-temp {
-            font-size: 2.5rem;
-            font-weight: 300;
-            color: white;
-            line-height: 1;
-            margin-bottom: 4px;
-        }
-
-        .weather-temp small {
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .weather-desc {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            margin-bottom: 12px;
-            text-transform: capitalize;
-        }
-
-        .weather-details {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-top: 8px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .weather-detail-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .weather-detail-label {
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-        }
-
-        .weather-detail-value {
-            color: white;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        .weather-location {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.8rem;
-            margin-top: 8px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .weather-refresh {
-            margin-top: 12px;
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 0.7rem;
-            cursor: pointer;
-            transition: color 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .weather-refresh:hover {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .weather-refresh svg {
-            width: 12px;
-            height: 12px;
-        }
-
-        .weather-loading {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.9rem;
-            padding: 20px 0;
-            text-align: center;
-        }
-
-        /* ========== 書籤卡片 ========== */
+        /* 書籤卡片 - 內部尺寸維持不變，由 scale 控制 */
         .bookmark-card {
             padding: 20px;
             min-width: 240px;
@@ -681,6 +584,12 @@
             flex-shrink: 0;
         }
 
+        .bookmark-favicon img {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
         .bookmark-info {
             flex: 1;
             overflow: hidden;
@@ -743,6 +652,11 @@
             margin-right: 4px;
         }
 
+        .drag-handle svg {
+            width: 12px;
+            height: 12px;
+        }
+
         .bookmark-item:active .drag-handle {
             cursor: grabbing;
         }
@@ -802,8 +716,132 @@
             border-color: rgba(255, 255, 255, 0.3);
         }
 
-        .form-btn.primary:hover {
-            background: rgba(255, 255, 255, 0.3);
+        /* ========== 左下角天氣卡片 (原始尺寸) ========== */
+        .weather-corner {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 1.5rem;
+            z-index: 30;
+            opacity: 0;
+            animation: fadeIn 0.7s 1.3s forwards;
+        }
+
+        .weather-card {
+            padding: 24px;
+            min-width: 160px;
+        }
+
+        .weather-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .weather-icon-container {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 8px;
+        }
+
+        .weather-icon {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            font-size: 3rem !important;
+            line-height: 1;
+        }
+
+        .weather-temp {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: white;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .weather-temp small {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .weather-desc {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            text-transform: capitalize;
+        }
+
+        .weather-details {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .weather-detail-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .weather-detail-label {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+        }
+
+        .weather-detail-value {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .weather-location {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .weather-location svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .weather-refresh {
+            margin-top: 12px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .weather-refresh:hover {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .weather-refresh svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .weather-loading {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
         }
 
         .footer-tagline {
@@ -819,10 +857,6 @@
             text-transform: uppercase;
             font-weight: 300;
             white-space: nowrap;
-        }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
         }
 
         .toast-area {
@@ -933,7 +967,7 @@
                                         <circle cx="11" cy="11" r="8"></circle>
                                         <path d="m21 21-4.3-4.3"></path>
                                     </svg>
-                                    <input type="text" name="q" class="search-input" placeholder="搜尋 Google..." aria-label="搜尋" id="searchInput">
+                                    <input type="text" name="q" class="search-input" placeholder="搜尋 Google..." aria-label="搜尋" id="searchInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
                                 </div>
                             </div>
                         </form>
@@ -941,7 +975,7 @@
                 </div>
             </div>
 
-            <!-- 右側面板 -->
+            <!-- 右側面板 (時間 + 書籤) - 縮小10% -->
             <div class="right-panel">
                 <!-- 時間面板 -->
                 <div class="panel-item time-panel">
@@ -968,16 +1002,6 @@
                     </div>
                 </div>
 
-                <!-- 天氣面板 (取代音樂) -->
-                <div class="panel-item weather-panel">
-                    <div class="glass-card weather-card" id="weatherCard">
-                        <div class="weather-content" id="weatherContent">
-                            <!-- 天氣會用 JavaScript 動態產生 -->
-                            <div class="weather-loading">載入天氣資料中...</div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- 書籤面板 -->
                 <div class="panel-item bookmark-panel">
                     <div class="glass-card bookmark-card" id="bookmarkCard">
@@ -999,7 +1023,7 @@
                         <!-- 書籤列表容器 -->
                         <div class="bookmark-grid" id="bookmarkGrid"></div>
 
-                        <!-- 新增書籤表單 (預設隱藏) -->
+                        <!-- 新增書籤表單 -->
                         <div class="add-form" id="addForm" style="display: none;">
                             <input type="text" id="bookmarkTitle" placeholder="名稱 (如: Google)" autocomplete="off">
                             <input type="text" id="bookmarkUrl" placeholder="網址 (如: https://google.com)" autocomplete="off">
@@ -1008,6 +1032,15 @@
                                 <button class="form-btn primary" id="saveBookmarkBtn">儲存</button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 左下角天氣卡片 (原始尺寸) -->
+            <div class="weather-corner">
+                <div class="glass-card weather-card" id="weatherCard">
+                    <div class="weather-content" id="weatherContent">
+                        <div class="weather-loading">載入天氣資料中...</div>
                     </div>
                 </div>
             </div>
@@ -1067,6 +1100,11 @@
             const searchInput = document.getElementById('searchInput');
             const searchForm = document.getElementById('searchForm');
 
+            searchInput.setAttribute('autocomplete', 'off');
+            searchInput.setAttribute('autocorrect', 'off');
+            searchInput.setAttribute('autocapitalize', 'off');
+            searchInput.setAttribute('spellcheck', 'false');
+
             searchBar.addEventListener('click', function(e) {
                 if (searchBar.classList.contains('collapsed')) {
                     searchBar.classList.remove('collapsed');
@@ -1094,7 +1132,6 @@
             const weatherContent = document.getElementById('weatherContent');
             const toastArea = document.getElementById('toastArea');
 
-            // 天氣圖示對照表
             const weatherIcons = {
                 'clear sky': '☀️',
                 'few clouds': '🌤️',
@@ -1112,30 +1149,24 @@
                 'light snow': '🌨️'
             };
 
-            // 顯示通知
             function showToast(message, duration = 3000) {
                 const toast = document.createElement('div');
                 toast.className = 'toast-message';
                 toast.textContent = message;
                 toastArea.appendChild(toast);
-
                 setTimeout(() => {
                     toast.style.opacity = '0';
                     setTimeout(() => toast.remove(), 300);
                 }, duration);
             }
 
-            // 取得天氣資料 (使用免費 API)
             async function fetchWeather() {
                 try {
-                    // 先嘗試取得使用者位置
                     if (navigator.geolocation) {
                         navigator.geolocation.getCurrentPosition(async (position) => {
                             const { latitude, longitude } = position.coords;
                             await getWeatherByCoords(latitude, longitude);
                         }, async (error) => {
-                            // 如果使用者拒絕定位，使用台北預設
-                            console.log('使用預設位置 (台北)');
                             await getWeatherByCity('Taipei');
                         });
                     } else {
@@ -1148,34 +1179,24 @@
 
             async function getWeatherByCoords(lat, lon) {
                 try {
-                    // 使用 OpenWeatherMap API (免費版)
-                    // 注意：這是一個公開的測試 API key，僅供示範使用
-                    // 建議你到 https://openweathermap.org/api 申請自己的 API key
-                    const apiKey = 'bd5e378503939ddaee76f12ad7a97608'; // 這是公開的測試 key
+                    const apiKey = 'bd5e378503939ddaee76f12ad7a97608';
                     const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=zh_tw&appid=${apiKey}`);
-                    
                     if (!response.ok) throw new Error('天氣 API 錯誤');
-                    
                     const data = await response.json();
                     updateWeatherUI(data);
                 } catch (error) {
-                    console.error('天氣 API 錯誤，使用模擬資料', error);
-                    // 如果 API 失敗，使用模擬資料
                     useMockWeather();
                 }
             }
 
             async function getWeatherByCity(city) {
                 try {
-                    const apiKey = 'bd5e378503939ddaee76f12ad7a97608'; // 公開測試 key
+                    const apiKey = 'bd5e378503939ddaee76f12ad7a97608';
                     const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&lang=zh_tw&appid=${apiKey}`);
-                    
                     if (!response.ok) throw new Error('天氣 API 錯誤');
-                    
                     const data = await response.json();
                     updateWeatherUI(data);
                 } catch (error) {
-                    console.error('天氣 API 錯誤，使用模擬資料', error);
                     useMockWeather();
                 }
             }
@@ -1191,7 +1212,7 @@
 
                 weatherContent.innerHTML = `
                     <div class="weather-icon-container">
-                        <div class="weather-icon" style="font-size: 3.5rem;">${icon}</div>
+                        <div class="weather-icon">${icon}</div>
                     </div>
                     <div class="weather-temp">${temp}<small>°C</small></div>
                     <div class="weather-desc">${weatherDesc}</div>
@@ -1226,7 +1247,6 @@
                     </div>
                 `;
 
-                // 綁定重新整理按鈕
                 document.getElementById('refreshWeather').addEventListener('click', () => {
                     weatherContent.innerHTML = '<div class="weather-loading">更新天氣資料中...</div>';
                     fetchWeather();
@@ -1234,10 +1254,9 @@
             }
 
             function useMockWeather() {
-                // 模擬台北天氣資料
                 weatherContent.innerHTML = `
                     <div class="weather-icon-container">
-                        <div class="weather-icon" style="font-size: 3.5rem;">☁️</div>
+                        <div class="weather-icon">☁️</div>
                     </div>
                     <div class="weather-temp">23<small>°C</small></div>
                     <div class="weather-desc">多雲</div>
@@ -1260,7 +1279,7 @@
                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                             <circle cx="12" cy="10" r="3"></circle>
                         </svg>
-                        台北市 (模擬)
+                        台北 (模擬)
                     </div>
                     <div class="weather-refresh" id="refreshWeather">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -1278,7 +1297,6 @@
                 });
             }
 
-            // 初始化天氣
             fetchWeather();
 
             // ==================== 書籤功能 ====================
@@ -1290,24 +1308,20 @@
             const bookmarkTitle = document.getElementById('bookmarkTitle');
             const bookmarkUrl = document.getElementById('bookmarkUrl');
 
-            // 預設書籤
             const DEFAULT_BOOKMARKS = [
-                { id: '1', title: 'Google', url: 'https://google.com', favicon: 'G' },
-                { id: '2', title: 'YouTube', url: 'https://youtube.com', favicon: 'YT' },
-                { id: '3', title: 'GitHub', url: 'https://github.com', favicon: 'GH' },
-                { id: '4', title: 'Spotify', url: 'https://open.spotify.com', favicon: 'S' },
-                { id: '5', title: 'Gmail', url: 'https://mail.google.com', favicon: 'GM' }
+                { id: '1', title: 'Google', url: 'https://google.com' },
+                { id: '2', title: 'YouTube', url: 'https://youtube.com' },
+                { id: '3', title: 'GitHub', url: 'https://github.com' },
+                { id: '4', title: 'Spotify', url: 'https://open.spotify.com' },
+                { id: '5', title: 'Gmail', url: 'https://mail.google.com' }
             ];
 
-            // 載入書籤
             let bookmarks = JSON.parse(localStorage.getItem('bookmarks')) || DEFAULT_BOOKMARKS;
 
-            // 儲存書籤
             function saveBookmarks() {
                 localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
             }
 
-            // 獲取網站的 favicon URL
             function getFaviconUrl(url) {
                 try {
                     const urlObj = new URL(url);
@@ -1317,11 +1331,9 @@
                 }
             }
 
-            // 渲染書籤
             function renderBookmarks() {
                 bookmarkGrid.innerHTML = '';
-                
-                bookmarks.forEach((bookmark, index) => {
+                bookmarks.forEach((bookmark) => {
                     const item = document.createElement('div');
                     item.className = 'bookmark-item';
                     item.setAttribute('draggable', 'true');
@@ -1331,14 +1343,14 @@
                     
                     item.innerHTML = `
                         <div class="drag-handle" draggable="false">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <circle cx="12" cy="12" r="1"></circle>
                                 <circle cx="12" cy="5" r="1"></circle>
                                 <circle cx="12" cy="19" r="1"></circle>
                             </svg>
                         </div>
                         <div class="bookmark-favicon">
-                            ${faviconUrl ? `<img src="${faviconUrl}" width="20" height="20" style="border-radius: 4px;">` : bookmark.favicon}
+                            ${faviconUrl ? `<img src="${faviconUrl}">` : '🔖'}
                         </div>
                         <div class="bookmark-info">
                             <div class="bookmark-title">${bookmark.title}</div>
@@ -1359,14 +1371,12 @@
                         </div>
                     `;
 
-                    // 點擊書籤開啟連結
                     item.addEventListener('click', (e) => {
                         if (!e.target.closest('.bookmark-actions') && !e.target.closest('.drag-handle')) {
                             window.open(bookmark.url, '_blank');
                         }
                     });
 
-                    // 拖曳功能
                     item.addEventListener('dragstart', handleDragStart);
                     item.addEventListener('dragend', handleDragEnd);
                     item.addEventListener('dragover', handleDragOver);
@@ -1375,25 +1385,21 @@
                     bookmarkGrid.appendChild(item);
                 });
 
-                // 綁定刪除/編輯按鈕事件
                 document.querySelectorAll('.bookmark-action-btn.delete').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        const id = btn.dataset.id;
-                        deleteBookmark(id);
+                        deleteBookmark(btn.dataset.id);
                     });
                 });
 
                 document.querySelectorAll('.bookmark-action-btn.edit').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        const id = btn.dataset.id;
-                        editBookmark(id);
+                        editBookmark(btn.dataset.id);
                     });
                 });
             }
 
-            // 拖曳相關
             let draggedItem = null;
 
             function handleDragStart(e) {
@@ -1413,33 +1419,21 @@
             function handleDragOver(e) {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
-                
-                const items = [...bookmarkGrid.querySelectorAll('.bookmark-item:not(.dragging)')];
-                const afterElement = getDragAfterElement(bookmarkGrid, e.clientY);
-                
-                if (afterElement) {
-                    afterElement.style.borderTop = '2px solid rgba(255, 255, 255, 0.5)';
-                }
             }
 
             function handleDrop(e) {
                 e.preventDefault();
                 const id = e.dataTransfer.getData('text/plain');
                 const draggedElement = document.querySelector(`[data-id="${id}"]`);
-                
                 if (!draggedElement) return;
 
-                const items = [...bookmarkGrid.querySelectorAll('.bookmark-item:not(.dragging)')];
                 const afterElement = getDragAfterElement(bookmarkGrid, e.clientY);
-                
                 if (afterElement) {
                     bookmarkGrid.insertBefore(draggedElement, afterElement);
-                    afterElement.style.borderTop = '';
                 } else {
                     bookmarkGrid.appendChild(draggedElement);
                 }
 
-                // 更新順序
                 const newOrder = [...bookmarkGrid.querySelectorAll('.bookmark-item')].map(item => item.dataset.id);
                 bookmarks.sort((a, b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
                 saveBookmarks();
@@ -1447,11 +1441,9 @@
 
             function getDragAfterElement(container, y) {
                 const draggableElements = [...container.querySelectorAll('.bookmark-item:not(.dragging)')];
-
                 return draggableElements.reduce((closest, child) => {
                     const box = child.getBoundingClientRect();
                     const offset = y - box.top - box.height / 2;
-                    
                     if (offset < 0 && offset > closest.offset) {
                         return { offset: offset, element: child };
                     } else {
@@ -1460,7 +1452,6 @@
                 }, { offset: Number.NEGATIVE_INFINITY }).element;
             }
 
-            // 刪除書籤
             function deleteBookmark(id) {
                 bookmarks = bookmarks.filter(b => b.id !== id);
                 saveBookmarks();
@@ -1468,7 +1459,6 @@
                 showToast('書籤已刪除');
             }
 
-            // 編輯書籤
             function editBookmark(id) {
                 const bookmark = bookmarks.find(b => b.id === id);
                 if (!bookmark) return;
@@ -1488,21 +1478,18 @@
                 }
             }
 
-            // 新增書籤
             function addBookmark(title, url) {
                 try {
                     let fullUrl = url;
                     if (!url.startsWith('http://') && !url.startsWith('https://')) {
                         fullUrl = 'https://' + url;
                     }
-
                     new URL(fullUrl);
 
                     const newBookmark = {
                         id: Date.now().toString(),
                         title: title,
-                        url: fullUrl,
-                        favicon: title.charAt(0).toUpperCase()
+                        url: fullUrl
                     };
 
                     bookmarks.push(newBookmark);
@@ -1512,7 +1499,6 @@
                     bookmarkTitle.value = '';
                     bookmarkUrl.value = '';
                     addForm.style.display = 'none';
-                    
                     showToast('書籤已新增');
                 } catch (error) {
                     alert('請輸入有效的網址');
@@ -1521,9 +1507,7 @@
 
             addBookmarkBtn.addEventListener('click', () => {
                 addForm.style.display = addForm.style.display === 'none' ? 'block' : 'none';
-                if (addForm.style.display === 'block') {
-                    bookmarkTitle.focus();
-                }
+                if (addForm.style.display === 'block') bookmarkTitle.focus();
             });
 
             cancelAddBtn.addEventListener('click', () => {
@@ -1535,24 +1519,15 @@
             saveBookmarkBtn.addEventListener('click', () => {
                 const title = bookmarkTitle.value.trim();
                 const url = bookmarkUrl.value.trim();
-
-                if (!title) {
-                    alert('請輸入名稱');
+                if (!title || !url) {
+                    alert('請輸入名稱和網址');
                     return;
                 }
-
-                if (!url) {
-                    alert('請輸入網址');
-                    return;
-                }
-
                 addBookmark(title, url);
             });
 
             bookmarkUrl.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    saveBookmarkBtn.click();
-                }
+                if (e.key === 'Enter') saveBookmarkBtn.click();
             });
 
             renderBookmarks();
@@ -1570,68 +1545,57 @@
             const resetBgBtn = document.getElementById('resetBgBtn');
 
             const DEFAULT_BG = 'https://images.unsplash.com/photo-1506318137071-a8e063c4bec0?q=80&w=3500&auto=format&fit=crop';
-            
             let currentPreviewUrl = null;
 
             function loadBackground() {
                 const savedBg = localStorage.getItem('portalBackground');
-                if (savedBg) {
-                    backgroundEl.style.backgroundImage = `url('${savedBg}')`;
-                } else {
-                    backgroundEl.style.backgroundImage = `url('${DEFAULT_BG}')`;
-                }
+                backgroundEl.style.backgroundImage = savedBg ? `url('${savedBg}')` : `url('${DEFAULT_BG}')`;
             }
             loadBackground();
 
-            uploadToggle.addEventListener('click', function(e) {
+            uploadToggle.addEventListener('click', (e) => {
                 e.stopPropagation();
                 uploadPanel.classList.toggle('show');
             });
 
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', (e) => {
                 if (!uploadToggle.contains(e.target) && !uploadPanel.contains(e.target)) {
                     uploadPanel.classList.remove('show');
                 }
             });
 
-            uploadArea.addEventListener('click', function() {
-                fileInput.click();
-            });
+            uploadArea.addEventListener('click', () => fileInput.click());
 
-            uploadArea.addEventListener('dragover', function(e) {
+            uploadArea.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.4)';
                 uploadArea.style.background = 'rgba(255, 255, 255, 0.05)';
             });
 
-            uploadArea.addEventListener('dragleave', function(e) {
+            uploadArea.addEventListener('dragleave', (e) => {
                 e.preventDefault();
                 uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.2)';
                 uploadArea.style.background = 'transparent';
             });
 
-            uploadArea.addEventListener('drop', function(e) {
+            uploadArea.addEventListener('drop', (e) => {
                 e.preventDefault();
                 uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.2)';
                 uploadArea.style.background = 'transparent';
-                
                 const files = e.dataTransfer.files;
                 if (files.length > 0 && files[0].type.startsWith('image/')) {
                     handleFileSelect(files[0]);
                 }
             });
 
-            fileInput.addEventListener('change', function(e) {
-                if (e.target.files.length > 0) {
-                    handleFileSelect(e.target.files[0]);
-                }
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) handleFileSelect(e.target.files[0]);
             });
 
             function handleFileSelect(file) {
                 fileName.textContent = file.name;
-                
                 const reader = new FileReader();
-                reader.onload = function(e) {
+                reader.onload = (e) => {
                     currentPreviewUrl = e.target.result;
                     previewImage.src = currentPreviewUrl;
                     previewContainer.style.display = 'block';
@@ -1639,7 +1603,7 @@
                 reader.readAsDataURL(file);
             }
 
-            applyUploadBtn.addEventListener('click', function() {
+            applyUploadBtn.addEventListener('click', () => {
                 if (currentPreviewUrl) {
                     backgroundEl.style.backgroundImage = `url('${currentPreviewUrl}')`;
                     localStorage.setItem('portalBackground', currentPreviewUrl);
@@ -1650,7 +1614,7 @@
                 }
             });
 
-            resetBgBtn.addEventListener('click', function() {
+            resetBgBtn.addEventListener('click', () => {
                 backgroundEl.style.backgroundImage = `url('${DEFAULT_BG}')`;
                 localStorage.removeItem('portalBackground');
                 currentPreviewUrl = null;
@@ -1664,7 +1628,7 @@
             let mouseX = 0, mouseY = 0;
             let currentX = 0, currentY = 0;
 
-            document.addEventListener('mousemove', function(e) {
+            document.addEventListener('mousemove', (e) => {
                 mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
                 mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
             });
@@ -1672,12 +1636,7 @@
             function updateParallax() {
                 currentX += (mouseX - currentX) * 0.05;
                 currentY += (mouseY - currentY) * 0.05;
-                
-                const moveX = currentX * 2;
-                const moveY = currentY * 2;
-                
-                backgroundEl.style.transform = `scale(1.05) translate(${moveX}%, ${moveY}%)`;
-                
+                backgroundEl.style.transform = `scale(1.05) translate(${currentX * 2}%, ${currentY * 2}%)`;
                 requestAnimationFrame(updateParallax);
             }
             updateParallax();
