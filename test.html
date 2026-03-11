@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chronos Portal · 時空入口</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* 主要容器 */
+        .portal {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0a0a0b;
+            user-select: none;
+        }
+
+        /* 背景圖層 */
+        .background {
+            position: absolute;
+            inset: 0;
+            background-image: url('https://images.unsplash.com/photo-1506318137071-a8e063c4bec0?q=80&w=3500&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.15s ease-out, filter 0.5s;
+            filter: brightness(0.75);
+            will-change: transform;
+        }
+
+        .background.parallax {
+            transform: scale(1.05);
+        }
+
+        /* 漸層覆蓋層 */
+        .overlay {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(transparent 30%, rgba(10, 10, 11, 0.7) 100%);
+            pointer-events: none;
+        }
+
+        .bottom-gradient {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40%;
+            background: linear-gradient(to top, rgba(10, 10, 11, 0.6), transparent);
+            pointer-events: none;
+        }
+
+        /* 主要內容層 */
+        .content {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 中央搜尋區域 */
+        .search-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 1rem;
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 800px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.7s 0.6s forwards;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-wrapper {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .background-text {
+            position: absolute;
+            pointer-events: none;
+            user-select: none;
+            opacity: 0.04;
+            font-size: clamp(60px, 10vw, 140px);
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            color: white;
+            white-space: nowrap;
+            z-index: 0;
+        }
+
+        .search-form {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            max-width: 50vw;
+            min-width: 280px;
+            z-index: 1;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 100%;
+            transition: all 0.5s ease-out;
+            cursor: pointer;
+        }
+
+        .search-bar.expanded {
+            height: 56px;
+            background: rgba(20, 20, 22, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-bar.collapsed {
+            height: 2px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 1px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .search-input-container {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .search-bar.expanded .search-input-container {
+            opacity: 1;
+        }
+
+        .search-icon {
+            width: 20px;
+            height: 20px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .search-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.125rem;
+            outline: none;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .search-input::-webkit-search-cancel-button {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" opacity="0.5"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>');
+            background-size: contain;
+            cursor: pointer;
+        }
+
+        /* 右側面板 */
+        .right-panel {
+            position: fixed;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            z-index: 20;
+        }
+
+        @media (min-width: 640px) {
+            .right-panel {
+                right: 2rem;
+            }
+        }
+
+        .panel-item {
+            opacity: 0;
+            transform: translateX(20px);
+            animation: fadeInRight 0.7s forwards;
+        }
+
+        .time-panel {
+            animation-delay: 0.9s;
+        }
+
+        .media-panel {
+            animation-delay: 1.2s;
+        }
+
+        @keyframes fadeInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* 毛玻璃卡片 */
+        .glass-card {
+            backdrop-filter: blur(20px) saturate(150%);
+            background: rgba(10, 10, 11, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.7s;
+        }
+
+        .time-card {
+            padding: 28px 24px;
+            min-width: 140px;
+        }
+
+        .time-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .time-hour {
+            font-weight: 900;
+            color: white;
+            line-height: 1;
+            font-size: clamp(48px, 5vw, 72px);
+            letter-spacing: -0.04em;
+        }
+
+        .time-separator {
+            width: 1.5rem;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.2);
+            margin: 0.5rem 0;
+        }
+
+        .time-minute {
+            font-weight: 200;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1;
+            font-size: clamp(36px, 4vw, 56px);
+            letter-spacing: 0.05em;
+        }
+
+        .time-seconds {
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            font-family: monospace;
+            letter-spacing: 0.1em;
+        }
+
+        .date-info {
+            margin-top: 1.25rem;
+            text-align: center;
+        }
+
+        .day-of-week {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .full-date {
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .progress-section {
+            margin-top: 1.25rem;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 0.75rem;
+            margin-bottom: 0.375rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.5));
+            transition: width 1s;
+            width: 0%;
+        }
+
+        /* 媒體卡片 */
+        .media-card {
+            padding: 24px;
+            min-width: 140px;
+        }
+
+        .media-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .vinyl-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+        }
+
+        .vinyl-ring {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: conic-gradient(rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .vinyl-ring.playing {
+            animation: spin 8s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .vinyl-center {
+            position: absolute;
+            inset: 8px;
+            border-radius: 50%;
+            background: rgba(10, 10, 11, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .vinyl-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .equalizer {
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            margin-top: 1rem;
+            height: 1rem;
+        }
+
+        .equalizer-bar {
+            width: 2px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.25);
+            transition: height 0.3s;
+            height: 3px;
+        }
+
+        .equalizer-bar.playing {
+            animation: equalize 1s ease-in-out infinite;
+        }
+
+        .equalizer-bar:nth-child(1) { animation-delay: 0.0s; }
+        .equalizer-bar:nth-child(2) { animation-delay: 0.05s; }
+        .equalizer-bar:nth-child(3) { animation-delay: 0.1s; }
+        .equalizer-bar:nth-child(4) { animation-delay: 0.15s; }
+        .equalizer-bar:nth-child(5) { animation-delay: 0.2s; }
+        .equalizer-bar:nth-child(6) { animation-delay: 0.25s; }
+        .equalizer-bar:nth-child(7) { animation-delay: 0.3s; }
+        .equalizer-bar:nth-child(8) { animation-delay: 0.35s; }
+        .equalizer-bar:nth-child(9) { animation-delay: 0.4s; }
+        .equalizer-bar:nth-child(10) { animation-delay: 0.45s; }
+        .equalizer-bar:nth-child(11) { animation-delay: 0.5s; }
+        .equalizer-bar:nth-child(12) { animation-delay: 0.55s; }
+
+        @keyframes equalize {
+            0%, 100% { height: 3px; }
+            50% { height: 12px; }
+        }
+
+        .song-info {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .song-title {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+            font-weight: 500;
+            max-width: 130px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .song-artist {
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 0.75rem;
+            margin-top: 0.125rem;
+            max-width: 130px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .media-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1rem;
+            opacity: 0;
+            transform: translateY(4px);
+            transition: all 0.3s;
+        }
+
+        .media-card:hover .media-controls {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .control-btn {
+            color: rgba(255, 255, 255, 0.4);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-btn:hover {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .play-btn {
+            width: 2.25rem;
+            height: 2.25rem;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .play-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .play-icon {
+            width: 1rem;
+            height: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-left: 2px;
+        }
+
+        .spotify-link {
+            margin-top: 0.75rem;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 0.75rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .spotify-link:hover {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* 底部標語 */
+        .footer-tagline {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            animation: fadeIn 0.7s 1.5s forwards;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            font-weight: 300;
+            white-space: nowrap;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* 通知區域 */
+        .toast-area {
+            position: fixed;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            max-height: 100vh;
+            width: 100%;
+            flex-direction: column-reverse;
+            padding: 1rem;
+            pointer-events: none;
+        }
+
+        @media (min-width: 640px) {
+            .toast-area {
+                bottom: 0;
+                right: 0;
+                top: auto;
+                flex-direction: column;
+                max-width: 420px;
+            }
+        }
+
+        /* SVG 圖標 */
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .icon-sm {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* 背景設定按鈕 - 修改為上傳功能 */
+        .bg-settings {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 30;
+            opacity: 0;
+            animation: fadeIn 0.7s 1.5s forwards;
+        }
+
+        .settings-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(10, 10, 11, 0.65);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .settings-btn:hover {
+            color: white;
+            background: rgba(30, 30, 35, 0.8);
+        }
+
+        .settings-panel {
+            position: absolute;
+            bottom: 50px;
+            right: 0;
+            width: 280px;
+            padding: 1rem;
+            background: rgba(10, 10, 11, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            color: white;
+            font-size: 0.875rem;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .settings-panel.show {
+            display: block;
+        }
+
+        .settings-title {
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* 上傳區域 */
+        .upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .upload-area:hover {
+            border-color: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .upload-icon {
+            width: 32px;
+            height: 32px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-text {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.875rem;
+        }
+
+        .upload-hint {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.7rem;
+            margin-top: 0.25rem;
+        }
+
+        /* 預覽圖片 */
+        .preview-container {
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 80px;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .settings-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .settings-btn-small {
+            flex: 1;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            color: white;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .settings-btn-small:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .settings-btn-small.primary {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .settings-btn-small.primary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 檔案名稱顯示 */
+        .file-name {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    <div class="portal">
+        <!-- 背景圖片層 -->
+        <div class="background" id="backgroundImage"></div>
+        <div class="overlay"></div>
+        <div class="bottom-gradient"></div>
+
+        <!-- 主要內容 -->
+        <div class="content">
+            <!-- 中央搜尋區塊 -->
+            <div class="search-section">
+                <div class="search-container">
+                    <div class="search-wrapper">
+                        <div class="background-text">SEARCH</div>
+                        <form class="search-form" id="searchForm" action="https://www.google.com/search" method="GET" target="_blank">
+                            <div class="search-bar collapsed" id="searchBar">
+                                <div class="search-input-container">
+                                    <svg class="search-icon" viewBox="0 0 24 24">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <path d="m21 21-4.3-4.3"></path>
+                                    </svg>
+                                    <input type="text" name="q" class="search-input" placeholder="搜尋 Google..." aria-label="搜尋" id="searchInput">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右側垂直面板 -->
+            <div class="right-panel">
+                <!-- 時間面板 -->
+                <div class="panel-item time-panel">
+                    <div class="glass-card time-card" id="timeCard">
+                        <div class="time-display">
+                            <span class="time-hour" id="hours">00</span>
+                            <div class="time-separator"></div>
+                            <span class="time-minute" id="minutes">00</span>
+                            <span class="time-seconds" id="seconds">00</span>
+                        </div>
+                        <div class="date-info">
+                            <p class="day-of-week" id="weekday">星期一</p>
+                            <p class="full-date" id="fullDate">2024年1月1日</p>
+                        </div>
+                        <div class="progress-section">
+                            <div class="progress-label">
+                                <span>日進度</span>
+                                <span id="dayProgress">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 媒體面板 -->
+                <div class="panel-item media-panel">
+                    <div class="glass-card media-card">
+                        <div class="media-content">
+                            <div class="vinyl-container" id="vinylContainer">
+                                <div class="vinyl-ring" id="vinylRing"></div>
+                                <div class="vinyl-center">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon" style="color: rgba(255,255,255,0.4);">
+                                        <path d="M9 18V5l12-2v13"></path>
+                                        <circle cx="6" cy="18" r="3"></circle>
+                                        <circle cx="18" cy="16" r="3"></circle>
+                                    </svg>
+                                </div>
+                                <div class="vinyl-dot"></div>
+                            </div>
+
+                            <div class="equalizer" id="equalizer">
+                                <div class="equalizer-bar"></div>
+                                <div class="equalizer-bar"></div>
+                                <div class="equalizer-bar"></div>
+                                <div class="equalizer-bar"></div>
+                                <div class="equalizer-bar"></div>
+                                <div class="equalizer-bar"></div>
+                                <div class="equalizer-bar"></div>
+                                <div class="equalizer-bar"></div>
+                                <div class="equalizer-bar"></div>
+                                <div class="equalizer-bar"></div>
+                                <div class="equalizer-bar"></div>
+                                <div class="equalizer-bar"></div>
+                            </div>
+
+                            <div class="song-info">
+                                <p class="song-title" id="songTitle">Midnight City</p>
+                                <p class="song-artist" id="songArtist">M83</p>
+                            </div>
+
+                            <div class="media-controls">
+                                <button class="control-btn" id="prevBtn" title="上一首">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polygon points="19 20 9 12 19 4 19 20"></polygon>
+                                        <line x1="5" x2="5" y1="19" y2="5"></line>
+                                    </svg>
+                                </button>
+                                <button class="play-btn" id="playPauseBtn" title="播放/暫停">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="play-icon" id="playIcon">
+                                        <polygon points="6 3 20 12 6 21 6 3"></polygon>
+                                    </svg>
+                                </button>
+                                <button class="control-btn" id="nextBtn" title="下一首">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <polygon points="5 4 15 12 5 20 5 4"></polygon>
+                                        <line x1="19" x2="19" y1="5" y2="19"></line>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <button class="spotify-link" id="spotifyBtn">在 Spotify 上開啟</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部標語 -->
+            <div class="footer-tagline">Neural Command Center</div>
+
+            <!-- 背景設定按鈕 - 上傳圖片版本 -->
+            <div class="bg-settings">
+                <div class="settings-btn" id="settingsToggle">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H5.78a1.65 1.65 0 0 0-1.51 1 1.65 1.65 0 0 0 .33 1.82l.04.04A10 10 0 0 0 12 18a10 10 0 0 0 6.36-2.22l.04-.04z"></path>
+                        <path d="M16.5 9.4V6.5a4.5 4.5 0 1 0-9 0v2.9"></path>
+                    </svg>
+                </div>
+                <div class="settings-panel" id="settingsPanel">
+                    <div class="settings-title">上傳背景圖片</div>
+                    
+                    <!-- 隱藏的檔案輸入 -->
+                    <input type="file" id="fileInput" class="file-input" accept="image/*">
+                    
+                    <!-- 上傳區域 -->
+                    <div class="upload-area" id="uploadArea">
+                        <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" x2="12" y1="3" y2="15"></line>
+                        </svg>
+                        <div class="upload-text">點擊或拖曳上傳圖片</div>
+                        <div class="upload-hint">支援 JPG、PNG、GIF</div>
+                    </div>
+
+                    <!-- 預覽區域 -->
+                    <div class="preview-container" id="previewContainer">
+                        <img class="preview-image" id="previewImage" src="" alt="預覽">
+                        <div class="file-name" id="fileName"></div>
+                    </div>
+
+                    <div class="settings-actions">
+                        <button class="settings-btn-small" id="resetBgBtn">重設預設</button>
+                        <button class="settings-btn-small primary" id="applyUploadBtn">套用圖片</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 通知區域 -->
+        <div class="toast-area"></div>
+    </div>
+
+    <script>
+        (function() {
+            // ==================== 時鐘功能 ====================
+            const hoursEl = document.getElementById('hours');
+            const minutesEl = document.getElementById('minutes');
+            const secondsEl = document.getElementById('seconds');
+            const weekdayEl = document.getElementById('weekday');
+            const fullDateEl = document.getElementById('fullDate');
+            const progressFill = document.getElementById('progressFill');
+            const dayProgressEl = document.getElementById('dayProgress');
+
+            const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+
+            function updateClock() {
+                const now = new Date();
+                
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+                const seconds = now.getSeconds().toString().padStart(2, '0');
+                
+                hoursEl.textContent = hours;
+                minutesEl.textContent = minutes;
+                secondsEl.textContent = seconds;
+
+                const weekday = weekdays[now.getDay()];
+                const year = now.getFullYear();
+                const month = (now.getMonth() + 1).toString().padStart(2, '0');
+                const day = now.getDate().toString().padStart(2, '0');
+                
+                weekdayEl.textContent = weekday;
+                fullDateEl.textContent = `${year}年${month}月${day}日`;
+
+                const totalMinutes = hours * 60 + minutes;
+                const dayProgress = (totalMinutes / (24 * 60)) * 100;
+                const progressPercent = dayProgress.toFixed(2) + '%';
+                
+                progressFill.style.width = progressPercent;
+                dayProgressEl.textContent = progressPercent;
+            }
+
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // ==================== 搜尋欄互動 ====================
+            const searchBar = document.getElementById('searchBar');
+            const searchInput = document.getElementById('searchInput');
+            const searchForm = document.getElementById('searchForm');
+
+            searchBar.addEventListener('click', function(e) {
+                if (searchBar.classList.contains('collapsed')) {
+                    searchBar.classList.remove('collapsed');
+                    searchBar.classList.add('expanded');
+                    searchInput.focus();
+                }
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!searchBar.contains(e.target) && searchBar.classList.contains('expanded')) {
+                    if (searchInput.value.trim() === '') {
+                        searchBar.classList.remove('expanded');
+                        searchBar.classList.add('collapsed');
+                    }
+                }
+            });
+
+            searchForm.addEventListener('submit', function(e) {
+                if (searchInput.value.trim() === '') {
+                    e.preventDefault();
+                }
+            });
+
+            // ==================== 背景圖片上傳功能 ====================
+            const backgroundEl = document.getElementById('backgroundImage');
+            const settingsToggle = document.getElementById('settingsToggle');
+            const settingsPanel = document.getElementById('settingsPanel');
+            const fileInput = document.getElementById('fileInput');
+            const uploadArea = document.getElementById('uploadArea');
+            const previewContainer = document.getElementById('previewContainer');
+            const previewImage = document.getElementById('previewImage');
+            const fileName = document.getElementById('fileName');
+            const applyUploadBtn = document.getElementById('applyUploadBtn');
+            const resetBgBtn = document.getElementById('resetBgBtn');
+
+            // 預設背景
+            const DEFAULT_BG = 'https://images.unsplash.com/photo-1506318137071-a8e063c4bec0?q=80&w=3500&auto=format&fit=crop';
+            
+            // 儲存當前上傳的圖片資料
+            let currentUploadedFile = null;
+            let currentPreviewUrl = null;
+
+            // 載入儲存的背景
+            function loadBackground() {
+                const savedBg = localStorage.getItem('portalBackground');
+                if (savedBg) {
+                    // 檢查是否是儲存的 data URL
+                    if (savedBg.startsWith('data:image')) {
+                        backgroundEl.style.backgroundImage = `url('${savedBg}')`;
+                    } else {
+                        backgroundEl.style.backgroundImage = `url('${savedBg}')`;
+                    }
+                } else {
+                    backgroundEl.style.backgroundImage = `url('${DEFAULT_BG}')`;
+                }
+            }
+            loadBackground();
+
+            // 切換設定面板
+            settingsToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                settingsPanel.classList.toggle('show');
+            });
+
+            // 點擊外部關閉設定面板
+            document.addEventListener('click', function(e) {
+                if (!settingsToggle.contains(e.target) && !settingsPanel.contains(e.target)) {
+                    settingsPanel.classList.remove('show');
+                }
+            });
+
+            // 點擊上傳區域觸發檔案選擇
+            uploadArea.addEventListener('click', function() {
+                fileInput.click();
+            });
+
+            // 拖曳上傳
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+                uploadArea.style.background = 'rgba(255, 255, 255, 0.05)';
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                uploadArea.style.background = 'transparent';
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                uploadArea.style.background = 'transparent';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].type.startsWith('image/')) {
+                    handleFileSelect(files[0]);
+                }
+            });
+
+            // 檔案選擇處理
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    handleFileSelect(e.target.files[0]);
+                }
+            });
+
+            function handleFileSelect(file) {
+                currentUploadedFile = file;
+                
+                // 顯示檔案名稱
+                fileName.textContent = file.name;
+                
+                // 建立預覽
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentPreviewUrl = e.target.result;
+                    previewImage.src = currentPreviewUrl;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // 套用上傳的圖片
+            applyUploadBtn.addEventListener('click', function() {
+                if (currentPreviewUrl) {
+                    // 套用到背景
+                    backgroundEl.style.backgroundImage = `url('${currentPreviewUrl}')`;
+                    
+                    // 儲存到 localStorage (data URL 可能很大，但現代瀏覽器可以處理)
+                    localStorage.setItem('portalBackground', currentPreviewUrl);
+                    
+                    // 關閉面板
+                    settingsPanel.classList.remove('show');
+                    
+                    // 清除預覽 (但保留狀態)
+                    // 不清理 currentPreviewUrl，這樣下次開啟還能看到
+                } else {
+                    alert('請先選擇一張圖片');
+                }
+            });
+
+            // 重設為預設背景
+            resetBgBtn.addEventListener('click', function() {
+                backgroundEl.style.backgroundImage = `url('${DEFAULT_BG}')`;
+                localStorage.removeItem('portalBackground');
+                
+                // 清除上傳暫存
+                currentUploadedFile = null;
+                currentPreviewUrl = null;
+                previewContainer.style.display = 'none';
+                fileInput.value = '';
+                
+                settingsPanel.classList.remove('show');
+            });
+
+            // ==================== 視差效果 ====================
+            let mouseX = 0, mouseY = 0;
+            let currentX = 0, currentY = 0;
+
+            document.addEventListener('mousemove', function(e) {
+                mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+                mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+            });
+
+            function updateParallax() {
+                currentX += (mouseX - currentX) * 0.05;
+                currentY += (mouseY - currentY) * 0.05;
+                
+                const moveX = currentX * 2;
+                const moveY = currentY * 2;
+                
+                backgroundEl.style.transform = `scale(1.05) translate(${moveX}%, ${moveY}%)`;
+                
+                requestAnimationFrame(updateParallax);
+            }
+            updateParallax();
+
+            // ==================== 媒體面板模擬 ====================
+            const vinylRing = document.getElementById('vinylRing');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const playIcon = document.getElementById('playIcon');
+            const equalizerBars = document.querySelectorAll('.equalizer-bar');
+            const songTitleEl = document.getElementById('songTitle');
+            const songArtistEl = document.getElementById('songArtist');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const spotifyBtn = document.getElementById('spotifyBtn');
+
+            let isPlaying = false;
+            
+            const playlist = [
+                { title: 'Midnight City', artist: 'M83' },
+                { title: 'Bloom', artist: 'The Paper Kites' },
+                { title: 'Apocalypse', artist: 'Cigarettes After Sex' },
+                { title: 'Holocene', artist: 'Bon Iver' },
+                { title: 'Intro', artist: 'The xx' }
+            ];
+            let currentTrack = 0;
+
+            function updateTrack(index) {
+                const track = playlist[index % playlist.length];
+                songTitleEl.textContent = track.title;
+                songArtistEl.textContent = track.artist;
+            }
+
+            function setPlaying(state) {
+                isPlaying = state;
+                
+                if (isPlaying) {
+                    vinylRing.classList.add('playing');
+                    equalizerBars.forEach(bar => bar.classList.add('playing'));
+                    playIcon.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
+                } else {
+                    vinylRing.classList.remove('playing');
+                    equalizerBars.forEach(bar => bar.classList.remove('playing'));
+                    playIcon.innerHTML = '<polygon points="6 3 20 12 6 21 6 3"></polygon>';
+                }
+            }
+
+            playPauseBtn.addEventListener('click', function() {
+                setPlaying(!isPlaying);
+            });
+
+            prevBtn.addEventListener('click', function() {
+                currentTrack = (currentTrack - 1 + playlist.length) % playlist.length;
+                updateTrack(currentTrack);
+                if (!isPlaying) setPlaying(true);
+            });
+
+            nextBtn.addEventListener('click', function() {
+                currentTrack = (currentTrack + 1) % playlist.length;
+                updateTrack(currentTrack);
+                if (!isPlaying) setPlaying(true);
+            });
+
+            spotifyBtn.addEventListener('click', function() {
+                window.open('https://open.spotify.com', '_blank');
+            });
+
+            document.getElementById('vinylContainer').addEventListener('click', function() {
+                setPlaying(!isPlaying);
+            });
+
+            updateTrack(0);
+        })();
+    </script>
+</body>
+</html>
